@@ -6,6 +6,7 @@ const authRouter = require("./controller/auth");
 const userRouter = require("./controller/user");
 const postRouter = require("./controller/post");
 const commentRouter = require("./controller/comment");
+const { notFound } = require("./middleware/not-found");
 
 const port = process.env.SERVER_PORT || 8080;
 const app = express();
@@ -16,6 +17,7 @@ app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/posts", postRouter);
 app.use("/api/v1/comments", commentRouter);
+app.use(notFound);
 
 app.listen(port, () => {
   console.log(`Server started on port: ${port}`);
