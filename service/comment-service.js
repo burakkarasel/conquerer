@@ -1,4 +1,5 @@
 const commentRepository = require("../database/comment-repository");
+const { formatComment, formatComments } = require("../helper/formatter");
 
 class CommentService {
   commentRepository;
@@ -6,12 +7,26 @@ class CommentService {
     this.commentRepository = _commentRepository;
   }
 
-  createComment = (userId, postId, content) => {
-    return this.commentRepository.createComment(content, postId, userId);
+  createComment = async (userId, postId, content) => {
+    try {
+      const res = await this.commentRepository.createComment(
+        content,
+        postId,
+        userId
+      );
+      return formatComment(res.rows[0]);
+    } catch (error) {
+      throw error;
+    }
   };
 
-  listUsersComments = (userId) => {
-    return this.commentRepository.listCommentsOfUser(userId);
+  listUsersComments = async (userId) => {
+    try {
+      const res = await this.commentRepository.listCommentsOfUser(userId);
+      return formatComments(res.rows);
+    } catch (error) {
+      throw error;
+    }
   };
 }
 

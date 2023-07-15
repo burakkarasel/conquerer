@@ -24,15 +24,42 @@ const formatPost = (arr) => {
     comments: [],
   };
   arr.forEach((item) => {
-    const comment = {};
-    comment.commentOwnerId = item.comment_user_id;
-    comment.commentOwnerUsername = item.comment_user_name;
-    comment.content = item.comment_content;
-    comment.createdAt = item.comment_created_at;
-    post.comments.push(comment);
+    if (item.comment_user_id) {
+      const comment = {};
+
+      comment.commentOwnerId = item.comment_user_id;
+      comment.commentOwnerUsername = item.comment_user_name;
+      comment.content = item.comment_content;
+      comment.createdAt = item.comment_created_at;
+
+      post.comments.push(comment);
+    }
   });
 
   return post;
 };
 
-module.exports = { formatUser, formatPost };
+const formatComment = (comment) => {
+  return {
+    id: comment.id,
+    content: comment.content,
+    createdAt: comment.created_at,
+    updatedAt: comment.updated_at,
+    postId: comment.post_id,
+    userId: comment.user_id,
+  };
+};
+
+const formatComments = (comments) => {
+  return comments.map((item) => {
+    return {
+      id: item.id,
+      content: item.content,
+      createdAt: item.created_at,
+      fullName: item.full_name,
+      username: item.user_name,
+    };
+  });
+};
+
+module.exports = { formatUser, formatPost, formatComment, formatComments };

@@ -19,8 +19,7 @@ class CommentRepository {
         [uuid.v4(), content, postId, userId],
         (error, results) => {
           if (error) reject(error);
-
-          resolve(results.rows[0]);
+          resolve(results);
         }
       );
     });
@@ -30,7 +29,7 @@ class CommentRepository {
     return new Promise((resolve, reject) => {
       this.pool.query(listUsersCommentsQuery, [userId], (error, results) => {
         if (error) reject(error);
-        resolve(results.rows);
+        resolve(results);
       });
     });
   };
@@ -39,7 +38,7 @@ class CommentRepository {
     return new Promise((resolve, reject) => {
       this.pool.query(deletePostsCommentsStmt, [postId], (error, results) => {
         if (error) reject(error);
-        resolve(results.rows);
+        resolve(results);
       });
     });
   };

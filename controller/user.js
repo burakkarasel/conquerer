@@ -2,32 +2,33 @@ const express = require("express");
 const userService = require("../service/user-service");
 const { verifyToken } = require("../middleware/jwt-middleware");
 const { formatUser } = require("../helper/formatter");
+const { asyncWrapper } = require("../middleware/async-wrapper");
+const { generateCustomError } = require("../error/custom-error");
 
 const router = express.Router();
 router.use(verifyToken);
 
-router.get("/", async (req, res) => {
-  const { userId } = req;
-  try {
+router.get(
+  "/",
+  asyncWrapper(async (req, res) => {
+    const { userId } = req;
     const user = await userService.getUserDetails(userId);
     res.send(formatUser(user));
-  } catch (error) {
-    res.status(500).send({ error: error.message });
-  }
-});
+  })
+);
 
-router.patch("/", async (req, res) => {
-  const { userId } = req;
-  const { fullName, username, dob } = req.body;
-  if (fullName && fullName.length < 3) {
-    res.status(400).send({ error: "Full name must be at least 3 characters" });
-    return;
-  }
-  if (username && username < 2) {
-    res.status(400).send({ error: "Username must be at least 2 characters" });
-    return;
-  }
-  try {
+router.patch(
+  "/",
+  asyncWrapper(async (req, res) => {
+    const { userId } = req;
+    const { fullName, username, dob } = req.body;
+    if (fullName && fullName.length < 3) {
+      throw generateCustomError("Full name must be at least 3 characters", 400);
+    }
+    if (username && username < 2) {
+      throw generateCustomError("Username must be at least 2 characters", 400);
+    }
+
     const user = await userService.updateUserDetails(
       userId,
       fullName,
@@ -35,21 +36,18 @@ router.patch("/", async (req, res) => {
       dob
     );
     res.status(200).send(formatUser(user));
-  } catch (error) {
-    res.status(500).send({ error: error.message });
-  }
-});
+  })
+);
 
-router.delete("/", (req, res) => {
-  const { userId } = req;
+router.delete(
+  "/",
+  asyncWrapper(async (req, res) => {
+    const { userId } = req;
 
-  try {
-    userService.deleteUser(userId);
+    await userService.deleteUser(userId);
     res.clearCookie("token");
     res.sendStatus(204);
-  } catch (error) {
-    res.status(500).send({ error: error.message });
-  }
-});
+  })
+);
 
 module.exports = router;

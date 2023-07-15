@@ -23,7 +23,7 @@ class PostRepository {
         [uuid.v4(), title, content, category, userId],
         (error, results) => {
           if (error) reject(error);
-          resolve(results.rows[0]);
+          resolve(results);
         }
       );
     });
@@ -33,7 +33,7 @@ class PostRepository {
     return new Promise((resolve, reject) => {
       this.pool.query(getPostDetailsQuery, [id], (error, results) => {
         if (error) reject(error);
-        resolve(results.rows);
+        resolve(results);
       });
     });
   };
@@ -42,7 +42,7 @@ class PostRepository {
     return new Promise((resolve, reject) => {
       this.pool.query(listPostsQuery, (error, results) => {
         if (error) reject(error);
-        resolve(results.rows);
+        resolve(results);
       });
     });
   };
@@ -52,7 +52,7 @@ class PostRepository {
       this.pool.query(listUsersPostsQuery, [userId], (error, results) => {
         if (error) reject(error);
         console.log("data access layer error: ", error);
-        resolve(results.rows);
+        resolve(results);
       });
     });
   };
@@ -64,7 +64,7 @@ class PostRepository {
         [category],
         (error, results) => {
           if (error) reject(error);
-          resolve(results.rows);
+          resolve(results);
         }
       );
     });
@@ -77,7 +77,7 @@ class PostRepository {
         [title, content, new Date(), postId, userId],
         (error, results) => {
           if (error) reject(error);
-          resolve(results.rows[0]);
+          resolve(results);
         }
       );
     });

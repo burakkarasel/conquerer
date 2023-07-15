@@ -5,105 +5,100 @@ const {
   validatePostTitleAndContent,
   validatePostCategory,
 } = require("../helper/validators");
+const { asyncWrapper } = require("../middleware/async-wrapper");
+const { generateCustomError } = require("../error/custom-error");
 
 const router = express.Router();
 router.use(verifyToken);
 
-router.post("/", async (req, res) => {
-  const { title, content, category } = req.body;
-  const { userId } = req;
+router.post(
+  "/",
+  asyncWrapper(async (req, res) => {
+    const { title, content, category } = req.body;
+    const { userId } = req;
 
-  const categoryResult = validatePostCategory(category);
+    const categoryResult = validatePostCategory(category);
 
-  if (categoryResult) {
-    res.status(400).send({ error: categoryResult });
-    return;
-  }
+    if (categoryResult) {
+      throw generateCustomError(categoryResult, 400);
+    }
 
-  const titleAndContentResult = validatePostTitleAndContent({ title, content });
+    const titleAndContentResult = validatePostTitleAndContent({
+      title,
+      content,
+    });
 
-  if (titleAndContentResult) {
-    res.status(400).send({ error: titleAndContentResult });
-    return;
-  }
+    if (titleAndContentResult) {
+      throw generateCustomError(titleAndContentResult, 400);
+    }
 
-  try {
     const post = await postService.createPost(title, content, category, userId);
     res.status(201).send(post);
-  } catch (error) {
-    res.status(500).send({ error: error.message });
-  }
-});
+  })
+);
 
-router.patch("/:postId", async (req, res) => {
-  const { postId } = req.params;
-  const { userId } = req;
-  const { title, content } = req.body;
+router.patch(
+  "/:postId",
+  asyncWrapper(async (req, res) => {
+    const { postId } = req.params;
+    const { userId } = req;
+    const { title, content } = req.body;
 
-  const result = validatePostTitleAndContent({ title, content });
+    const result = validatePostTitleAndContent({ title, content });
 
-  if (result) {
-    res.status(400).send({ error: result });
-    return;
-  }
+    if (result) {
+      throw generateCustomError(result, 400);
+    }
 
-  try {
     const post = await postService.updatePost(postId, userId, title, content);
     res.send(post);
-  } catch (error) {
-    res.status(500).send({ error: error.message });
-  }
-});
+  })
+);
 
-router.get("/:postId", async (req, res) => {
-  const { postId } = req.params;
+router.get(
+  "/:postId",
+  asyncWrapper(async (req, res) => {
+    const { postId } = req.params;
 
-  try {
     const post = await postService.getPostDetails(postId);
     if (!post) {
-      res.status(404).send({ error: "Post not found" });
-      return;
+      throw generateCustomError("Post not found", 404);
     }
     res.send(post);
-  } catch (error) {
-    res.status(500).send({ error: error });
-  }
-});
+  })
+);
 
-router.get("/", async (req, res) => {
-  const { self, category } = req.query;
-  const { userId } = req;
+router.get(
+  "/",
+  asyncWrapper(async (req, res) => {
+    const { self, category } = req.query;
+    const { userId } = req;
 
-  if (category) {
-    const result = validatePostCategory(category);
-    if (result) {
-      res.status(400).send({ error: result });
-      return;
+    if (category) {
+      const result = validatePostCategory(category);
+      if (result) {
+        throw generateCustomError(result, 400);
+      }
     }
-  }
 
-  if (self && category) {
-    res.status(400).send({ error: "Multiple filters are not supported" });
-    return;
-  }
-  try {
+    if (self && category) {
+      throw generateCustomError("Multiple filters are not supported", 400);
+    }
+
     const posts = await postService.listPosts(userId, self, category);
     res.send(posts);
-  } catch (error) {
-    res.status(500).send({ error: error });
-  }
-});
+  })
+);
 
-router.delete("/:postId", (req, res) => {
-  const { postId } = req.params;
-  const { userId } = req;
+router.delete(
+  "/:postId",
+  asyncWrapper(async (req, res) => {
+    const { postId } = req.params;
+    const { userId } = req;
 
-  try {
-    postService.deletePost(userId, postId);
+    await postService.deletePost(userId, postId);
     res.sendStatus(204);
-  } catch (error) {
-    res.status(500).send({ error: error.message });
-  }
-});
+  })
+);
 
 module.exports = router;

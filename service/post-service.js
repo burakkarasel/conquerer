@@ -1,6 +1,7 @@
 const postRepository = require("../database/post-repository");
 const commentRepository = require("../database/comment-repository");
 const { formatPost } = require("../helper/formatter");
+const { generateCustomError } = require("../error/custom-error");
 
 class PostService {
   postRepository;
@@ -10,38 +11,69 @@ class PostService {
     this.commentRepository = _commentRepository;
   }
 
-  createPost = (title, content, category, userId) => {
-    return this.postRepository.createPost(title, content, category, userId);
+  createPost = async (title, content, category, userId) => {
+    try {
+      const res = await this.postRepository.createPost(
+        title,
+        content,
+        category,
+        userId
+      );
+      return res.rows[0];
+    } catch (error) {
+      throw error;
+    }
   };
 
-  updatePost = (postId, userId, title, content) => {
-    return this.postRepository.updatePost(postId, userId, title, content);
+  updatePost = async (postId, userId, title, content) => {
+    try {
+      const res = await this.postRepository.updatePost(
+        postId,
+        userId,
+        title,
+        content
+      );
+      if (!res.rows.length) {
+        throw generateCustomError("Post not found", 404);
+      }
+      return res.rows[0];
+    } catch (error) {
+      throw error;
+    }
   };
 
   getPostDetails = async (postId) => {
-    const unformattedPost = await this.postRepository.getPostDetails(postId);
-    if (!unformattedPost.length) {
-      return null;
-    }
-    const formattedPost = formatPost(unformattedPost);
+    try {
+      const res = await this.postRepository.getPostDetails(postId);
+      if (!res.rows.length) {
+        throw generateCustomError("Post not found", 404);
+      }
+      const formattedPost = formatPost(res.rows);
 
-    return formattedPost;
+      return formattedPost;
+    } catch (error) {
+      throw error;
+    }
   };
 
   listPosts = async (userId, self, category) => {
-    let posts;
-    switch (true) {
-      case Boolean(self):
-        posts = await this.postRepository.listUsersPosts(userId);
-        break;
-      case Boolean(category):
-        posts = await this.postRepository.listPostsByCategory(category);
-        break;
-      default:
-        posts = await this.postRepository.listLatestPosts();
-    }
+    try {
+      let res;
+      switch (true) {
+        case Boolean(self):
+          res = await this.postRepository.listUsersPosts(userId);
+          break;
+        case Boolean(category):
+          res = await this.postRepository.listPostsByCategory(category);
+          break;
+        default:
+          res = await this.postRepository.listLatestPosts();
+      }
 
-    return posts;
+      return res.rows;
+    } catch (error) {
+      throw error;
+    }
   };
 
   deletePost = async (userId, postId) => {
@@ -49,7 +81,7 @@ class PostService {
       await this.postRepository.deletePost(postId, userId);
       await this.commentRepository.deletePostsComments(postId);
     } catch (error) {
-      return error;
+      throw error;
     }
   };
 }

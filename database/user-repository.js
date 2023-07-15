@@ -15,14 +15,14 @@ class UserRepository {
     this.pool = _pool;
   }
 
-  createUser = (fullName, email, password) => {
+  createUser = (fullName, email, password, username) => {
     return new Promise((resolve, reject) => {
       this.pool.query(
         createUserStmt,
-        [uuid.v4(), fullName, email, password, fullName],
+        [uuid.v4(), fullName, email, password, username],
         (error, results) => {
           if (error) reject(error);
-          resolve(results.rows[0]);
+          resolve(results);
         }
       );
     });
@@ -32,7 +32,7 @@ class UserRepository {
     return new Promise((resolve, reject) => {
       this.pool.query(getUserDetailsQuery, [id], (error, results) => {
         if (error) reject(error);
-        resolve(results.rows[0]);
+        resolve(results);
       });
     });
   };
@@ -41,7 +41,7 @@ class UserRepository {
     return new Promise((resolve, reject) => {
       this.pool.query(getUserByEmailQuery, [email], (error, results) => {
         if (error) reject(error);
-        resolve(results.rows[0]);
+        resolve(results);
       });
     });
   };
@@ -53,7 +53,7 @@ class UserRepository {
         [fullName, username, dob, new Date(), id],
         (error, results) => {
           if (error) reject(error);
-          resolve(results.rows[0]);
+          resolve(results);
         }
       );
     });
@@ -66,7 +66,7 @@ class UserRepository {
         [password, new Date(), id],
         (error, results) => {
           if (error) reject(error);
-          resolve(results.rows[0]);
+          resolve(results);
         }
       );
     });

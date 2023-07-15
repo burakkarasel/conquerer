@@ -1,4 +1,5 @@
 const userRepository = require("../database/user-repository");
+const { generateCustomError } = require("../error/custom-error");
 
 class UserService {
   userRepository;
@@ -6,27 +7,51 @@ class UserService {
     this.userRepository = _userRepository;
   }
 
-  getUserDetails = (userId) => {
-    return this.userRepository.getUserDetails(userId);
+  getUserDetails = async (userId) => {
+    try {
+      const res = await this.userRepository.getUserDetails(userId);
+      if (!res.rows.length) {
+        throw generateCustomError("User not found", 404);
+      }
+    } catch (error) {
+      throw error;
+    }
   };
 
   updateUserDetails = async (userId, fullName, username, dob) => {
-    const previousUser = await this.userRepository.getUserDetails(userId);
+    try {
+      const previousUserRes = await this.userRepository.getUserDetails(userId);
 
-    const newFullName = fullName || previousUser.full_name;
-    const newUsername = username || previousUser.user_name;
-    const newDob = dob || previousUser.dob;
+      if (!previousUserRes.rows.length) {
+        throw generateCustomError("User not found", 404);
+      }
 
-    return this.userRepository.updateUserDetails(
-      userId,
-      newFullName,
-      newUsername,
-      newDob
-    );
+      const newFullName = fullName || previousUserRes.rows[0].full_name;
+      const newUsername = username || previousUserRes.rows[0].user_name;
+      const newDob = dob || previousUserRes.rows[0].dob;
+
+      const res = await this.userRepository.updateUserDetails(
+        userId,
+        newFullName,
+        newUsername,
+        newDob
+      );
+
+      return res.rows[0];
+    } catch (error) {
+      if (error.code === "23505") {
+        throw generateCustomError("Username must be unique", 400);
+      }
+      throw error;
+    }
   };
 
-  deleteUser = (userId) => {
-    return this.userRepository.deleteUser(userId);
+  deleteUser = async (userId) => {
+    try {
+      await this.userRepository.deleteUser(userId);
+    } catch (error) {
+      throw error;
+    }
   };
 }
 
