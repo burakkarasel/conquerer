@@ -4,6 +4,7 @@ const userRepository = require("../database/user-repository");
 const jwt = require("jsonwebtoken");
 const { generateCustomError } = require("../error/custom-error");
 const { formatUser } = require("../helper/formatter");
+const { checkLogin } = require("../helper/security");
 
 class AuthService {
   userRepository;
@@ -52,16 +53,17 @@ class AuthService {
         throw generateCustomError("User not found with given credentials", 404);
       }
 
-      const token = jwt.sign(
-        { userId: results.rows[0].id },
-        process.env.MY_SECRET,
-        {
-          expiresIn: process.env.EXPIRES_IN,
-        }
-      );
+      const userId = results.rows[0].id;
+
+      const token = jwt.sign({ userId: userId }, process.env.MY_SECRET, {
+        expiresIn: process.env.EXPIRES_IN,
+      });
+
+      await checkLogin(userId, token);
 
       return token;
     } catch (error) {
+      console.log(error);
       throw error;
     }
   };
