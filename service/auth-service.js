@@ -4,7 +4,6 @@ const userRepository = require("../database/user-repository");
 const jwt = require("jsonwebtoken");
 const { generateCustomError } = require("../error/custom-error");
 const { formatUser } = require("../helper/formatter");
-const pg = require("pg");
 
 class AuthService {
   userRepository;
@@ -22,6 +21,7 @@ class AuthService {
       const username = `${fullName.replace(" ", "").toLowerCase()}#${Math.floor(
         1000 + Math.random() * 9000
       )}`;
+
       const res = await this.userRepository.createUser(
         fullName,
         email,

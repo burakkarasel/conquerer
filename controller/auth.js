@@ -51,7 +51,7 @@ router.post(
 );
 
 router.patch(
-  "/password-reset",
+  "/password",
   verifyToken,
   asyncWrapper(async (req, res) => {
     const { password, passwordConfirm } = req.body;
