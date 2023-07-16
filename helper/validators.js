@@ -28,8 +28,18 @@ const validatePostCategory = (category) => {
   return "";
 };
 
+const validateTimePeriod = (timeType) => {
+  const availableTimeType = ["month", "week", "year"];
+  if (!availableTimeType.includes(timeType)) {
+    return `Only ${availableTimeType.toString()} time periods are supported`;
+  }
+
+  return "";
+};
+
 module.exports = {
   validateEmail,
   validatePostTitleAndContent,
   validatePostCategory,
+  validateTimePeriod,
 };
