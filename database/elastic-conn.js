@@ -1,12 +1,13 @@
 const { Client } = require("@elastic/elasticsearch");
+require("dotenv").config();
 
 const client = new Client({
   cloud: {
-    id: "My_deployment:dXMtY2VudHJhbDEuZ2NwLmNsb3VkLmVzLmlvJGUzZTQ5NGUzYmRhMTQ5ZThiNGM3YThmOTgwMzBhZmNiJDIzY2Q0OGIwNmMxYzQ0NTc5YTYxMmZkMmE5N2I5YWM1",
+    id: process.env.ELASTIC_ID,
   },
   auth: {
-    username: "elastic",
-    password: "SPdI5x8jVEiFBfWlE4OgJgNZ",
+    username: process.env.ELASTIC_USERNAME,
+    password: process.env.ELASTIC_PASSWORD,
   },
 });
 
