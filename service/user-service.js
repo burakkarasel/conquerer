@@ -13,6 +13,7 @@ class UserService {
       if (!res.rows.length) {
         throw generateCustomError("User not found", 404);
       }
+      return res.rows[0];
     } catch (error) {
       throw error;
     }
@@ -40,7 +41,7 @@ class UserService {
       return res.rows[0];
     } catch (error) {
       if (error.code === "23505") {
-        throw generateCustomError("Username must be unique", 400);
+        throw generateCustomError("Username must be unique", 409);
       }
       throw error;
     }

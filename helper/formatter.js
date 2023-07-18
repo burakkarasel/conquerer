@@ -10,7 +10,7 @@ const formatUser = (user) => {
   };
 };
 
-const formatPost = (arr) => {
+const formatPostDetails = (arr) => {
   const post = {
     id: arr[0].id,
     title: arr[0].title,
@@ -20,6 +20,7 @@ const formatPost = (arr) => {
     active: true,
     createdAt: arr[0].created_at,
     updatedAt: arr[0].updated_at,
+    deletedAt: arr[0].deleted_at,
     postOwnerUsername: arr[0].user_user_name,
     comments: [],
   };
@@ -37,6 +38,32 @@ const formatPost = (arr) => {
   });
 
   return post;
+};
+
+const formatPostListing = (posts) => {
+  return posts.map((item) => {
+    return {
+      id: item.id,
+      title: item.title,
+      category: item.category,
+      username: item.user_name,
+      commentCount: item.comment_count,
+    };
+  });
+};
+
+const formatPost = (post) => {
+  return {
+    id: post.id,
+    title: post.title,
+    content: post.content,
+    category: post.category,
+    userId: post.user_id,
+    active: post.active,
+    createdAt: post.created_at,
+    updatedAt: post.updated_at,
+    deletedAt: post.deleted_at,
+  };
 };
 
 const formatComment = (comment) => {
@@ -62,4 +89,11 @@ const formatComments = (comments) => {
   });
 };
 
-module.exports = { formatUser, formatPost, formatComment, formatComments };
+module.exports = {
+  formatUser,
+  formatPostDetails,
+  formatComment,
+  formatComments,
+  formatPost,
+  formatPostListing,
+};

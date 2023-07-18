@@ -1,5 +1,10 @@
 const express = require("express");
-const { validateEmail } = require("../helper/validators");
+const {
+  validateEmail,
+  validateString,
+  validatePasswordMatch,
+  validatePassword,
+} = require("../helper/validators");
 const authService = require("../service/auth-service");
 const { verifyToken } = require("../middleware/jwt-middleware");
 const { asyncWrapper } = require("../middleware/async-wrapper");
@@ -14,12 +19,27 @@ router.post(
     if (!validateEmail(email)) {
       throw generateCustomError("Email format is invalid!", 400);
     }
-    if (password !== passwordConfirm) {
-      throw generateCustomError("Passwords doesnt match!", 400);
+
+    if (!password) {
+      throw generateCustomError("Password field cannot be empty", 400);
     }
-    if (password.length < 8) {
-      throw generateCustomError("Password must be at least 8 characters", 400);
+
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation) {
+      throw generateCustomError(
+        "Password must be at least 8 characters and must include at least one special character",
+        400
+      );
     }
+
+    const passwordMatchValidation = validatePasswordMatch(
+      password,
+      passwordConfirm
+    );
+    if (passwordMatchValidation) {
+      throw generateCustomError(passwordValidation, 400);
+    }
+
     if (!fullName) {
       throw generateCustomError("Full name cannot be empty!", 400);
     }
@@ -36,8 +56,10 @@ router.post(
     if (!validateEmail(email)) {
       throw generateCustomError("Email format is invalid!", 400);
     }
-    if (password.length < 8) {
-      throw generateCustomError("Password must be at least 8 characters", 400);
+
+    const passwordValidation = validateString("Password", password, 8);
+    if (passwordValidation) {
+      throw generateCustomError(passwordValidation, 400);
     }
 
     const token = await authService.signIn(email, password);
@@ -56,13 +78,27 @@ router.patch(
   asyncWrapper(async (req, res) => {
     const { password, passwordConfirm } = req.body;
     const { userId } = req;
-    if (password !== passwordConfirm) {
-      throw generateCustomError("Passwords doesnt match!", 400);
+
+    const passwordMatchValidation = validatePasswordMatch(
+      password,
+      passwordConfirm
+    );
+
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation) {
+      throw generateCustomError(
+        "Password must be at least 8 characters and must include at least one special character",
+        400
+      );
+    }
+
+    if (passwordMatchValidation) {
+      throw generateCustomError(passwordMatchValidation, 400);
     }
 
     const user = await authService.passwordReset(userId, password);
     res.clearCookie("token");
-    res.send(user);
+    res.send({ message: "OK" });
   })
 );
 

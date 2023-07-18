@@ -1,5 +1,6 @@
 const commentRepository = require("../database/comment-repository");
 const { formatComment, formatComments } = require("../helper/formatter");
+const { generateCustomError } = require("../error/custom-error");
 
 class CommentService {
   commentRepository;
@@ -16,6 +17,12 @@ class CommentService {
       );
       return formatComment(res.rows[0]);
     } catch (error) {
+      if (error.code === "23503") {
+        if (error.constraint === "comments_post_id_fkey") {
+          throw generateCustomError("Post not found", 404);
+        }
+        throw generateCustomError("User not found", 404);
+      }
       throw error;
     }
   };

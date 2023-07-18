@@ -8,7 +8,7 @@ const validatePostTitleAndContent = (obj) => {
     return "Title must be at least 2 characters";
   }
 
-  if (obj.title.length < 10) {
+  if (obj.content.length < 10) {
     return "Content must be at least 10 characters";
   }
 };
@@ -37,7 +37,27 @@ const validateTimePeriod = (timeType) => {
   return "";
 };
 
+const validatePassword = (password) => {
+  const re = /^(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?/~`]).{8,}$/;
+  return re.test(password);
+};
+
+const validateString = (field, str, charCount) => {
+  if (!str) {
+    return `${field} cannot be empty`;
+  }
+  return str.length < charCount
+    ? `${field} must be at least ${charCount} characters`
+    : "";
+};
+
+const validatePasswordMatch = (pw, pwConfirm) =>
+  pw === pwConfirm ? "" : "Passwords does not match";
+
 module.exports = {
+  validatePassword,
+  validatePasswordMatch,
+  validateString,
   validateEmail,
   validatePostTitleAndContent,
   validatePostCategory,

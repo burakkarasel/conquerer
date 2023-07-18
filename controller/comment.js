@@ -17,6 +17,10 @@ router.post(
       throw generateCustomError("Content cannot be empty", 400);
     }
 
+    if (!postId) {
+      throw generateCustomError("Post ID cannot be empty", 400);
+    }
+
     const comment = await commentService.createComment(userId, postId, content);
     res.status(201).send(comment);
   })

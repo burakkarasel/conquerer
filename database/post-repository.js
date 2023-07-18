@@ -7,6 +7,7 @@ const {
   listPostsByCategoryQuery,
   updatePostStmt,
   deletePostStmt,
+  getPostByIdQuery,
 } = require("../helper/queries");
 const uuid = require("uuid");
 
@@ -26,6 +27,15 @@ class PostRepository {
           resolve(results);
         }
       );
+    });
+  };
+
+  getPostById = (id) => {
+    return new Promise((resolve, reject) => {
+      this.pool.query(getPostByIdQuery, [id], (error, results) => {
+        if (error) reject(error);
+        resolve(results);
+      });
     });
   };
 
@@ -85,10 +95,14 @@ class PostRepository {
 
   deletePost = (postId, userId) => {
     return new Promise((resolve, reject) => {
-      this.pool.query(deletePostStmt, [postId, userId], (error, results) => {
-        if (error) reject(error);
-        resolve();
-      });
+      this.pool.query(
+        deletePostStmt,
+        [new Date(), postId, userId],
+        (error, results) => {
+          if (error) reject(error);
+          resolve();
+        }
+      );
     });
   };
 }

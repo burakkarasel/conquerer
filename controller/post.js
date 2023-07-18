@@ -23,6 +23,14 @@ router.post(
       throw generateCustomError(categoryResult, 400);
     }
 
+    if (!title) {
+      throw generateCustomError("Title field cannot be empty", 400);
+    }
+
+    if (!content) {
+      throw generateCustomError("Content field cannot be empty", 400);
+    }
+
     const titleAndContentResult = validatePostTitleAndContent({
       title,
       content,
@@ -44,10 +52,22 @@ router.patch(
     const { userId } = req;
     const { title, content } = req.body;
 
-    const result = validatePostTitleAndContent({ title, content });
+    if (title && title.length < 2) {
+      throw generateCustomError(
+        "Title value must be at least 2 characters",
+        400
+      );
+    }
 
-    if (result) {
-      throw generateCustomError(result, 400);
+    if (content && content.length < 10) {
+      throw generateCustomError(
+        "Content value must be at least 10 characters",
+        400
+      );
+    }
+
+    if (!postId) {
+      throw generateCustomError("Post ID cannot be empty", 400);
     }
 
     const post = await postService.updatePost(postId, userId, title, content);

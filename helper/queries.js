@@ -16,6 +16,8 @@ const createPostStmt =
 const updatePostStmt =
   "UPDATE posts SET title = $1, content = $2, updated_at = $3 WHERE id = $4 AND user_id = $5 RETURNING *";
 
+const getPostByIdQuery = "SELECT * FROM posts WHERE id = $1";
+
 const getPostDetailsQuery = `
   SELECT
   p.*,
@@ -37,7 +39,7 @@ const getPostDetailsQuery = `
   `;
 
 const deletePostStmt =
-  "UPDATE posts SET active = false WHERE id = $1 AND user_id = $2";
+  "UPDATE posts SET active = false, deleted_at = $1 WHERE id = $2 AND user_id = $3";
 
 const listUsersPostsQuery = `
   SELECT p.id, p.title, p.category, u.user_name, COUNT(c.id) AS comment_count
@@ -92,4 +94,5 @@ module.exports = {
   listPostsQuery,
   listPostsByCategoryQuery,
   deletePostsCommentsStmt,
+  getPostByIdQuery,
 };

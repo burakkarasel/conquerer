@@ -1,6 +1,10 @@
 const postRepository = require("../database/post-repository");
 const commentRepository = require("../database/comment-repository");
-const { formatPost } = require("../helper/formatter");
+const {
+  formatPostDetails,
+  formatPost,
+  formatPostListing,
+} = require("../helper/formatter");
 const { generateCustomError } = require("../error/custom-error");
 
 class PostService {
@@ -19,24 +23,38 @@ class PostService {
         category,
         userId
       );
-      return res.rows[0];
+      return formatPost(res.rows[0]);
     } catch (error) {
+      if (error.code === "23503") {
+        throw generateCustomError("User not found", 400);
+      }
       throw error;
     }
   };
 
   updatePost = async (postId, userId, title, content) => {
     try {
+      const prevPostRes = await this.postRepository.getPostById(postId);
+
+      if (!prevPostRes.rows.length) {
+        throw generateCustomError("Post not found", 404);
+      }
+
+      const newTitle = title || prevPostRes.rows[0].title;
+      const newContent = content || prevPostRes.rows[0].content;
+
       const res = await this.postRepository.updatePost(
         postId,
         userId,
-        title,
-        content
+        newTitle,
+        newContent
       );
+
       if (!res.rows.length) {
         throw generateCustomError("Post not found", 404);
       }
-      return res.rows[0];
+
+      return formatPost(res.rows[0]);
     } catch (error) {
       throw error;
     }
@@ -48,7 +66,7 @@ class PostService {
       if (!res.rows.length) {
         throw generateCustomError("Post not found", 404);
       }
-      const formattedPost = formatPost(res.rows);
+      const formattedPost = formatPostDetails(res.rows);
 
       return formattedPost;
     } catch (error) {
@@ -70,7 +88,7 @@ class PostService {
           res = await this.postRepository.listLatestPosts();
       }
 
-      return res.rows;
+      return formatPostListing(res.rows);
     } catch (error) {
       throw error;
     }
