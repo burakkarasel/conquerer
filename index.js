@@ -2,11 +2,11 @@ const express = require("express");
 require("dotenv").config;
 const cookieParser = require("cookie-parser");
 
-const authRouter = require("./controller/auth");
-const userRouter = require("./controller/user");
-const postRouter = require("./controller/post");
-const commentRouter = require("./controller/comment");
-const statisticsRouter = require("./controller/statistics");
+const authRouter = require("./router/auth-router");
+const userRouter = require("./router/user-router");
+const postRouter = require("./router/post-router");
+const commentRouter = require("./router/comment-router");
+const statisticsRouter = require("./router/statistics-router");
 const { notFound } = require("./middleware/not-found");
 const { errorHandlerMiddleware } = require("./middleware/error-handler");
 
