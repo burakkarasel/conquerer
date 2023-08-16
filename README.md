@@ -1,2 +1,2 @@
 # conquerer
-This is the repository for my Conquerer Task Project
+This is the repository for my Conquerer Project
