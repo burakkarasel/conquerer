@@ -8,8 +8,8 @@ const { verifyToken } = require("../middleware/jwt-middleware");
 
 const router = express.Router();
 
-router.post("/sign-up", signInHandler);
-router.post("/sign-in", signUpHandler);
+router.post("/sign-up", signUpHandler);
+router.post("/sign-in", signInHandler);
 router.patch("/password", verifyToken, passwordResetHandler);
 
 module.exports = router;

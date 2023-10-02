@@ -1,7 +1,10 @@
 const { createClient } = require("redis");
+require("dotenv").config();
 
 const checkLogin = async (userId, token) => {
-  const client = createClient();
+  const client = createClient({
+    url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
+  });
   //* Implementing log out on second device login
 
   await client.connect();
@@ -40,7 +43,9 @@ const checkLogin = async (userId, token) => {
 };
 
 const checkIfTokenRestricted = async (userId, token) => {
-  const client = createClient();
+  const client = createClient({
+    url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
+  });
 
   await client.connect();
 
